@@ -1,43 +1,38 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-
-export const hello: APIGatewayProxyHandler = async (event, _context) => {
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless Webpack (Typescript) v1.0! Your function executed successfully!',
-      input: event,
-    }, null, 2),
-  };
-}
+import './fake-db'
+import { getProduct, getProducts } from './fake-db';
 
 export const products: APIGatewayProxyHandler = async () => {
-  try {
-    return {
-      statusCode: 200,
-      body: JSON.stringify([
-        {
-          id: '1',
-          name: 'Name1'
-        },
-        {
-          id: '2',
-          name: 'Name2'
-        }
-      ])
-    }
-  } catch (error) {
-    return {
-      statusCode: 404,
-      body: 'Error Not Found'
-    }
+  const products = await getProducts()
+  return {
+    statusCode: 200,
+    body: JSON.stringify(products)
   }
 };
 
 export const product: APIGatewayProxyHandler = async (event) => {
   const { id } = event.pathParameters
+  if (isNaN(Number(id)))
+  {
+    return {
+      statusCode: 400,
+      body: "Id must be a valid number"
+    }
+  }
+  
+  const product = await getProduct(Number(id))
+
+  if (!product)
+  {
+    return {
+      statusCode: 404,
+      body: "Product not found by passed ID"
+    }
+  }
+
   return {
     statusCode: 200,
-    body: id
+    body: JSON.stringify(product)
   }
 };

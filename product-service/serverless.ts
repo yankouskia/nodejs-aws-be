@@ -22,17 +22,6 @@ const serverlessConfiguration: Serverless = {
     runtime: 'nodejs12.x'
   },
   functions: {
-    hello: {
-      handler: 'handler.hello',
-      events: [
-        {
-          http: {
-            method: 'get',
-            path: 'hello',
-          }
-        }
-      ]
-    },
     products: {
       handler: 'handler.products',
       events: [
