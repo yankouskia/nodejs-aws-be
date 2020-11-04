@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should return error if no path parameter 1`] = `"{\\"message\\":\\"Error while reading data\\"}"`;
+
+exports[`should return product 1`] = `"{\\"product\\":{\\"id\\":\\"product\\"}}"`;

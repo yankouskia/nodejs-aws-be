@@ -1,0 +1,138 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "Product service documentation",
+      "description": "Product service specification",
+      "termsOfService": "http://swagger.io/terms/",
+      "contact": {
+        "name": "Aliaksandr Yankouski"
+      },
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "host": "AWS",
+    "basePath": "/api",
+    "schemes": [
+      "http"
+    ],
+    "consumes": [
+      "application/json"
+    ],
+    "produces": [
+      "application/json"
+    ],
+    "paths": {
+      "/products": {
+        "get": {
+          "description": "Returns all products for purchasing",
+          "operationId": "getProducts",
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Product response",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Product"
+                }
+              }
+            },
+            "default": {
+              "description": "Server Error",
+              "schema": {
+                "$ref": "#/definitions/ErrorModel"
+              }
+            }
+          }
+        }
+      },
+      "/products/{id}": {
+        "get": {
+          "description": "Returns a specific product requested by id",
+          "operationId": "getProductById",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of Product to fetch",
+              "required": true,
+              "type": "integer",
+              "format": "int64"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Product response",
+              "schema": {
+                "$ref": "#/definitions/Product"
+              }
+            },
+            "default": {
+              "description": "unexpected error",
+              "schema": {
+                "$ref": "#/definitions/ErrorModel"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Product": {
+        "type": "object",
+        "required": [
+          "id",
+          "price",
+          "title",
+          "description",
+          "count"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "example": 102
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64",
+            "example": 6
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorModel": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "example": 500
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
