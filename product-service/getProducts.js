@@ -1,12 +1,15 @@
-import { client } from './db/connect';
+import { createClient } from './db/connect';
 import getProductsQuery from './db/select-products.sql';
 
 export const getProducts = async event => {
   console.log('GET PRODUCT LAMBDA LAUNCHED WITH EVENT: ', event);
 
   try {
+    const client = await createClient();
     const dbResponse = await client.query(getProductsQuery);
     const products = dbResponse.rows;
+
+    client.end();
 
     return {
       statusCode: 200,
@@ -27,8 +30,5 @@ export const getProducts = async event => {
       },
       body: JSON.stringify({ message: 'Error while reading or connecting to db' }),
     };
-  }
-  finally {
-    client.end();
   }
 };

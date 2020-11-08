@@ -1,9 +1,10 @@
-import { client } from './db/connect';
+import { createClient } from './db/connect';
 import createProductQuery from './db/create-product.sql';
 
 export const createProduct = async event => {
   try {
     console.log('Event Path Parameters', event.body);
+    const client = await createClient();
     const requestBody = JSON.parse(event.body);
 
     const {
@@ -31,6 +32,7 @@ export const createProduct = async event => {
 
     const dbResponse = await client.query(createProductQuery, [description, title, price, count]);
     const { product_id: productId } =  dbResponse.rows[0];
+    client.end();
 
     if (!productId) {
       return {
@@ -70,7 +72,5 @@ export const createProduct = async event => {
       },
       body: JSON.stringify({ message: 'Error while posting data' }),
     };
-  } finally {
-    client.end();
   }
 };
