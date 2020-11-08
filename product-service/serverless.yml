@@ -1,6 +1,9 @@
 service: product-service
 frameworkVersion: '2'
 
+plugins:
+  - serverless-dotenv-plugin
+
 provider:
   name: aws
   runtime: nodejs12.x
@@ -20,4 +23,11 @@ functions:
       - http:
           path: products/{id}
           method: get
+          cors: true
+  create-product:
+    handler: dist/handler.createProduct
+    events:
+      - http:
+          path: products
+          method: post
           cors: true

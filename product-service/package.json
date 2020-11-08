@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "pg": "^8.4.2"
+  },
   "exports": "./handler.js",
   "scripts": {
     "build": "NODE_ENV=production webpack",
@@ -15,6 +17,8 @@
     "@babel/preset-env": "^7.12.1",
     "babel-jest": "^26.6.1",
     "jest": "^26.6.1",
+    "raw-loader": "^4.0.2",
+    "serverless-dotenv-plugin": "^3.1.0",
     "webpack": "^5.3.2",
     "webpack-cli": "^4.1.0"
   }
