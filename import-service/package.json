@@ -8,5 +8,8 @@
   },
   "scripts": {
     "deploy": "sls deploy"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.792.0"
   }
 }
