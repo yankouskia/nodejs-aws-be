@@ -14,6 +14,10 @@ module.exports = {
         test: /\\.js$/,
         use: { loader: 'babel-loader' },
       },
+      {
+        test: /\.sql$/i,
+        use: { loader: 'raw-loader' },
+      },
     ],
   },
   resolve: {
