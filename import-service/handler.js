@@ -46,10 +46,8 @@ module.exports.parseProductsFile = async function(event) {
 
     const results = [];
 
-    const readStream = s3.getObject(params)
-      .createReadStream()
-      .pipe(csv())
-      .on('data', (data) => results.push(data));
+    const readStream = s3.getObject(params).createReadStream();
+    readStream.pipe(csv()).on('data', (data) => results.push(data));
 
     const parsedParams = {
       Bucket: BUCKET,
