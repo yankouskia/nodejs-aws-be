@@ -1,4 +1,6 @@
 const AWS = require('aws-sdk');
+const csv = require('csv-parser');
+
 const BUCKET = 'product-service.imported-products';
 
 module.exports.importProductsFile = async function(event) {
@@ -9,7 +11,7 @@ module.exports.importProductsFile = async function(event) {
   const params = {
     Bucket: BUCKET,
     Key: productsFilePath,
-    Expires: 120,
+    Expires: 60,
     ContentType: 'text/csv',
   };
 
@@ -42,7 +44,12 @@ module.exports.parseProductsFile = async function(event) {
       Key: record.s3.object.key,
     }
 
-    const readStream = s3.getObject(params).createReadStream();
+    const results = [];
+
+    const readStream = s3.getObject(params)
+      .createReadStream()
+      .pipe(csv())
+      .on('data', (data) => results.push(data));
 
     const parsedParams = {
       Bucket: BUCKET,
@@ -51,7 +58,8 @@ module.exports.parseProductsFile = async function(event) {
     };
 
     return new Promise((resolve, reject) => {
-      s3.upload(parsedParams, function(err, data) {
+      s3.upload(parsedParams, (err, data) => {
+        console.log('Data from products file: ', results);
         readStream.destroy();
 
         if (err) {
@@ -60,6 +68,13 @@ module.exports.parseProductsFile = async function(event) {
 
         return resolve(data);
       });
+    }).then(() => {
+      return new Promise((resolve, reject) => {
+        s3.deleteObject(params, (err, data) => {
+          if (data) return resolve(data);
+          return reject(err);
+        });
+      })
     });
   }))
 
