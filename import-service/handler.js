@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const csv = require('csv-parser');
+const { product } = require('prelude-ls');
 
 const BUCKET = 'product-service.imported-products';
 
@@ -47,6 +48,7 @@ module.exports.importProductsFile = async function(event) {
 
 module.exports.parseProductsFile = async function(event) {
   const s3 = new AWS.S3({ region: 'eu-west-1' });
+  const sqs = new AWS.SQS();
 
   try {
     await Promise.all(event.Records.map(record => {
@@ -68,8 +70,26 @@ module.exports.parseProductsFile = async function(event) {
       };
 
       return new Promise((resolve, reject) => {
-        s3.upload(parsedParams, (err, data) => {
+        s3.upload(parsedParams, async (err, data) => {
           console.log('Data from products file: ', results);
+
+          console.log('Start sending to queue');
+          await Promise.all(results.map(async product => {
+            try {
+              const params = {
+                MessageBody: JSON.stringify(product),
+                QueueUrl: process.env.SQS_URL,
+              };
+
+              console.log('SEND MESSAGE TO QUEUE', params);
+              await sqs.sendMessage(params).promise();
+              console.log('SUCCESSFULLY SENT');
+            } catch (e) {
+              console.log('FAILURE SENT', e);
+            }
+          }));
+          console.log('Finish sending to queue');
+
           readStream.destroy();
 
           if (err) {

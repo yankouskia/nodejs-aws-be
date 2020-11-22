@@ -8,6 +8,48 @@ provider:
   name: aws
   runtime: nodejs12.x
   region: eu-west-1
+  environment:
+    SQS_URL:
+      Ref: ExportProductQueue
+    SNS_TOPIC:
+      Ref: SNSTopic
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: "sns:*"
+      Resource:
+        Ref: SNSTopic
+
+resources:
+  Resources:
+    ExportProductQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: new-products-queue
+    SNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: NEW_PRODUCT_NOTIFIER
+    SNSSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: aleksandr.yankovskiy@gmail.com
+        Protocol: email
+        TopicArn:
+          Ref: SNSTopic
+        FilterPolicy:
+          status:
+            - success
+  Outputs:
+    ExportProductQueueUrl:
+      Value:
+        Ref: ExportProductQueue
+      Export:
+        Name: ExportProductQueueUrl
+    ExportProductQueueArn:
+      Value:
+        Fn::GetAtt: [ExportProductQueue, Arn]
+      Export:
+        Name: ExportProductQueueArn
 
 functions:
   get-products:
@@ -31,3 +73,12 @@ functions:
           path: products
           method: post
           cors: true
+  export-product:
+    handler: dist/handler.exportProduct
+    events:
+      - sqs:
+          batchSize: 5
+          arn:
+            Fn::GetAtt:
+              - ExportProductQueue
+              - Arn

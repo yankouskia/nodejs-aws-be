@@ -7,3 +7,4 @@ jspm_packages
 _warmup
 dist
 .env
+.DS_Store
