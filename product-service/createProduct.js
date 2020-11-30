@@ -1,38 +1,11 @@
-import { createClient } from './db/connect';
-import createProductQuery from './db/create-product.sql';
+import { sendToDB } from './sendToDB';
 
 export const createProduct = async event => {
   try {
     console.log('Event Path Parameters', event.body);
-    const client = await createClient();
     const requestBody = JSON.parse(event.body);
 
-    const {
-      description,
-      title,
-      price,
-      count,
-    } = requestBody;
-
-    if (
-      typeof description !== 'string' ||
-      typeof title !== 'string' ||
-      typeof price !== 'number' ||
-      typeof count !== 'number'
-    ) {
-      return {
-        statusCode: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
-        body: JSON.stringify({ message: 'Bad input provided in product fields' }),
-      };
-    }
-
-    const dbResponse = await client.query(createProductQuery, [description, title, price, count]);
-    const { product_id: productId } =  dbResponse.rows[0];
-    client.end();
+    const productId = await sendToDB(requestBody);
 
     if (!productId) {
       return {
